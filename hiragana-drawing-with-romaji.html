@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hiragana Drawing Practice</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Whitney:wght@400;700&display=swap');
+
+    body {
+      margin: 0;
+      font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: #2f3136;
+      color: #dcddde;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      color: #ffffff;
+      font-size: 32px;
+      margin-bottom: 5px;
+    }
+
+    p {
+      color: #b9bbbe;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+
+    #challenge {
+      font-size: 60px;
+      background-color: #36393f;
+      padding: 10px 20px;
+      border-radius: 10px;
+      margin-bottom: 5px;
+      border: 1px solid #42454a;
+    }
+
+    #romaji {
+      font-size: 24px;
+      color: #b9bbbe;
+      margin-bottom: 15px;
+    }
+
+    canvas {
+      border: 2px solid #7289da;
+      background-color: #ffffff;
+      border-radius: 10px;
+      touch-action: none;
+      margin-bottom: 20px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    button {
+      background-color: #7289da;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #5b6eae;
+    }
+  </style>
+</head>
+<body>
+  <h1>Draw Hiragana</h1>
+  <p>Try writing the character below</p>
+
+  <div id="challenge">あ</div>
+  <div id="romaji">a</div>
+  <div class="buttons">
+    <button onclick="newChallenge()">Next Character</button>
+    <button onclick="clearCanvas()">Clear</button>
+    <button onclick="saveCanvas()">Save</button>
+  </div>
+
+  <canvas id="drawCanvas" width="400" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById('drawCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    const hiraganaMap = {
+      "あ": "a", "い": "i", "う": "u", "え": "e", "お": "o",
+      "か": "ka", "き": "ki", "く": "ku", "け": "ke", "こ": "ko",
+      "さ": "sa", "し": "shi", "す": "su", "せ": "se", "そ": "so",
+      "た": "ta", "ち": "chi", "つ": "tsu", "て": "te", "と": "to",
+      "な": "na", "に": "ni", "ぬ": "nu", "ね": "ne", "の": "no",
+      "は": "ha", "ひ": "hi", "ふ": "fu", "へ": "he", "ほ": "ho",
+      "ま": "ma", "み": "mi", "む": "mu", "め": "me", "も": "mo",
+      "や": "ya", "ゆ": "yu", "よ": "yo",
+      "ら": "ra", "り": "ri", "る": "ru", "れ": "re", "ろ": "ro",
+      "わ": "wa", "を": "wo", "ん": "n"
+    };
+
+    const hiraganaList = Object.keys(hiraganaMap);
+
+    function newChallenge() {
+      const randomChar = hiraganaList[Math.floor(Math.random() * hiraganaList.length)];
+      document.getElementById('challenge').textContent = randomChar;
+      document.getElementById('romaji').textContent = hiraganaMap[randomChar];
+      clearCanvas();
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('touchstart', startDraw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('touchend', stopDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchmove', drawTouch);
+
+    function startDraw(e) {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(getX(e), getY(e));
+      e.preventDefault();
+    }
+
+    function stopDraw() {
+      drawing = false;
+    }
+
+    function draw(e) {
+      if (!drawing) return;
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = '#000';
+      ctx.lineTo(getX(e), getY(e));
+      ctx.stroke();
+      e.preventDefault();
+    }
+
+    function drawTouch(e) {
+      const touch = e.touches[0];
+      draw(touch);
+    }
+
+    function getX(e) {
+      return (e.clientX || e.touches[0].clientX) - canvas.offsetLeft;
+    }
+
+    function getY(e) {
+      return (e.clientY || e.touches[0].clientY) - canvas.offsetTop;
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function saveCanvas() {
+      const link = document.createElement('a');
+      link.download = 'hiragana-drawing.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+
+    window.onload = newChallenge;
+  </script>
+</body>
+</html>

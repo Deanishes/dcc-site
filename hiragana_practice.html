@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hiragana Practice</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      text-align: center;
+      width: 300px;
+    }
+
+    .hiragana {
+      font-size: 64px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      width: 100%;
+      font-size: 18px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #e60012;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      margin-top: 16px;
+      border-radius: 24px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #cc0010;
+    }
+
+    .feedback {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hiragana" id="hiraganaChar">あ</div>
+    <input type="text" id="romajiInput" placeholder="Type romaji..." />
+    <button onclick="checkAnswer()">Check</button>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <script>
+    const hiraganaMap = [
+      { char: "あ", romaji: "a" },
+      { char: "い", romaji: "i" },
+      { char: "う", romaji: "u" },
+      { char: "え", romaji: "e" },
+      { char: "お", romaji: "o" },
+      { char: "か", romaji: "ka" },
+      { char: "き", romaji: "ki" },
+      { char: "く", romaji: "ku" },
+      { char: "け", romaji: "ke" },
+      { char: "こ", romaji: "ko" }
+    ];
+
+    let current = {};
+
+    function getRandomCharacter() {
+      current = hiraganaMap[Math.floor(Math.random() * hiraganaMap.length)];
+      document.getElementById("hiraganaChar").textContent = current.char;
+      document.getElementById("romajiInput").value = "";
+      document.getElementById("feedback").textContent = "";
+    }
+
+    function checkAnswer() {
+      const input = document.getElementById("romajiInput").value.trim().toLowerCase();
+      const feedback = document.getElementById("feedback");
+      if (input === current.romaji) {
+        feedback.textContent = "Correct!";
+        feedback.style.color = "green";
+      } else {
+        feedback.textContent = `Incorrect. Answer: ${current.romaji}`;
+        feedback.style.color = "red";
+      }
+      setTimeout(getRandomCharacter, 1500);
+    }
+
+    getRandomCharacter();
+  </script>
+</body>
+</html>
