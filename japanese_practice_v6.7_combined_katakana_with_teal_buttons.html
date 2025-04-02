@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Japanese Practice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: url('peakpx.jpg') center center / cover no-repeat fixed;
+      background-color: rgba(0, 0, 0, 0.5);
+      background-blend-mode: overlay;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      padding: 30px 20px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      z-index: 2;
+    }
+    .char-display {
+      font-size: 64px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      padding: 10px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      width: 100%;
+      font-size: 18px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #e60012;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      margin-top: 16px;
+      border-radius: 24px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #cc0010;
+    }
+    .feedback, .tip, .streak {
+      margin-top: 15px;
+    }
+    .feedback {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .tip {
+      font-size: 14px;
+      color: #ccc;
+    }
+    .streak {
+      font-size: 16px;
+      font-weight: bold;
+      color: #00c3ff;
+    }
+    #quiz, #nextButton, #summarySection {
+      display: none;
+    }
+    .summary {
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+    .back-link {
+      margin-top: 20px;
+    }
+    .back-link a {
+      color: #00c3ff;
+      font-size: 14px;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  
+    .katakana-option {
+      background-color: #00a6a6;
+    }
+    .katakana-option:hover {
+      background-color: #008080;
+    }
+    </style>
+</head>
+<body>
+  <div class="container">
+    <div id="menu">
+      <h2>Select Practice Session</h2>
+      <button onclick="startQuiz('hiragana')">Hiragana</button>
+      <button onclick="startQuiz('katakana')">Katakana</button>
+      <button class="katakana-option" onclick="startQuiz('katakanaMain')">Main Katakana</button>
+      <button class="katakana-option" onclick="startQuiz('katakanaDakuten')">Dakuten & Handakuten</button>
+      <button class="katakana-option" onclick="startQuiz('katakanaCombo')">Combination</button>
+
+    
+    </div>
+
+    <div id="quiz">
+      <div class="char-display" id="quizChar">あ</div>
+      <input type="text" id="userInput" placeholder="Type romaji..." />
+      <button onclick="checkAnswer()">Check</button>
+      <div class="feedback" id="feedback"></div>
+      <div class="tip" id="tip"></div>
+      <div class="streak" id="streak">Streak: 0</div>
+      <button id="nextButton" onclick="getNextCharacter()">Next</button>
+      <button onclick="continueQuiz()">Continue</button>
+      <div class="back-link"><a onclick="goBackToMenu()">Back to Menu</a></div>
+    </div>
+
+    <div id="summarySection">
+      <h3>Review Your Mistakes</h3>
+      <div class="summary" id="summaryList"></div>
+      <button onclick="continueQuiz()">Continue</button>
+      <div class="back-link"><a onclick="goBackToMenu()">Back to Menu</a></div>
+    </div>
+  </div>
+
+  <script>
+    const hiraganaMap = [{"char": "あ", "romaji": "a", "tip": "Looks like an apple with a stem."}, {"char": "い", "romaji": "i", "tip": "Two sticks like the number II."}, {"char": "う", "romaji": "u", "tip": "A bird with wings up."}, {"char": "え", "romaji": "e", "tip": "Energetic jumper."}, {"char": "お", "romaji": "o", "tip": "Octopus tentacle."}, {"char": "か", "romaji": "ka", "tip": "Cut with a katana."}, {"char": "き", "romaji": "ki", "tip": "Key shape."}, {"char": "く", "romaji": "ku", "tip": "Bird’s beak saying 'ku'."}, {"char": "け", "romaji": "ke", "tip": "Kettle with a handle."}, {"char": "こ", "romaji": "ko", "tip": "Two co-workers side by side."}, {"char": "さ", "romaji": "sa", "tip": "Scythe for salmon fishing."}, {"char": "し", "romaji": "shi", "tip": "Hook or 'she' with hair."}, {"char": "す", "romaji": "su", "tip": "Soup swirling in a bowl."}, {"char": "せ", "romaji": "se", "tip": "Set of tools."}, {"char": "そ", "romaji": "so", "tip": "Sewing thread."}, {"char": "た", "romaji": "ta", "tip": "'Ta-da!' pose."}, {"char": "ち", "romaji": "chi", "tip": "Looks like a cheek."}, {"char": "つ", "romaji": "tsu", "tip": "Tsunami droplet."}, {"char": "て", "romaji": "te", "tip": "Tennis racket."}, {"char": "と", "romaji": "to", "tip": "Toe stub."}, {"char": "な", "romaji": "na", "tip": "Knot shape."}, {"char": "に", "romaji": "ni", "tip": "Neat lines."}, {"char": "ぬ", "romaji": "nu", "tip": "Loop like noodle."}, {"char": "ね", "romaji": "ne", "tip": "Nest swirl."}, {"char": "の", "romaji": "no", "tip": "'No entry' swirl."}, {"char": "は", "romaji": "ha", "tip": "Ha ha sharp teeth."}, {"char": "ひ", "romaji": "hi", "tip": "Smiling 'hee hee' face."}, {"char": "ふ", "romaji": "fu", "tip": "Blowing 'foo' wind."}, {"char": "へ", "romaji": "he", "tip": "Arrow to heaven."}, {"char": "ほ", "romaji": "ho", "tip": "Ho ho ho Santa arms."}, {"char": "ま", "romaji": "ma", "tip": "Mama hugging."}, {"char": "み", "romaji": "mi", "tip": "Music lines."}, {"char": "む", "romaji": "mu", "tip": "Cow face."}, {"char": "め", "romaji": "me", "tip": "Meandering loop."}, {"char": "も", "romaji": "mo", "tip": "Monster face."}, {"char": "や", "romaji": "ya", "tip": "Yarn shape."}, {"char": "ゆ", "romaji": "yu", "tip": "Yule hook."}, {"char": "よ", "romaji": "yo", "tip": "Yo-yo string."}, {"char": "ら", "romaji": "ra", "tip": "Rabbit ear."}, {"char": "り", "romaji": "ri", "tip": "River reeds."}, {"char": "る", "romaji": "ru", "tip": "Rumble swirl."}, {"char": "れ", "romaji": "re", "tip": "Raindrop."}, {"char": "ろ", "romaji": "ro", "tip": "Road loop."}, {"char": "わ", "romaji": "wa", "tip": "Wasp wings."}, {"char": "を", "romaji": "wo", "tip": "Worm shape."}, {"char": "ん", "romaji": "n", "tip": "Curling 'n'."}];
+    const katakanaMain = [{"char": "ア", "romaji": "a", "tip": "Antenna."}, {"char": "イ", "romaji": "i", "tip": "Roman II."}, {"char": "ウ", "romaji": "u", "tip": "Beak 'u'."}, {"char": "エ", "romaji": "e", "tip": "Capital H energy."}, {"char": "オ", "romaji": "o", "tip": "Flag bearer."}, {"char": "カ", "romaji": "ka", "tip": "Katana blade."}, {"char": "キ", "romaji": "ki", "tip": "Key prongs."}, {"char": "ク", "romaji": "ku", "tip": "Bird beak."}, {"char": "ケ", "romaji": "ke", "tip": "Kettle top."}, {"char": "コ", "romaji": "ko", "tip": "Co-lines."}, {"char": "サ", "romaji": "sa", "tip": "Scythe slash."}, {"char": "シ", "romaji": "shi", "tip": "Flowing hair."}, {"char": "ス", "romaji": "su", "tip": "Soup hook."}, {"char": "セ", "romaji": "se", "tip": "Flipped E."}, {"char": "ソ", "romaji": "so", "tip": "Thread loop."}, {"char": "タ", "romaji": "ta", "tip": "T-shape."}, {"char": "チ", "romaji": "chi", "tip": "Cheek curl."}, {"char": "ツ", "romaji": "tsu", "tip": "Drops down."}, {"char": "テ", "romaji": "te", "tip": "Telephone pole."}, {"char": "ト", "romaji": "to", "tip": "Toe stab."}, {"char": "ナ", "romaji": "na", "tip": "Nail line."}, {"char": "ニ", "romaji": "ni", "tip": "Neat lines."}, {"char": "ヌ", "romaji": "nu", "tip": "Noodle curl."}, {"char": "ネ", "romaji": "ne", "tip": "Net hook."}, {"char": "ノ", "romaji": "no", "tip": "Single stroke."}, {"char": "ハ", "romaji": "ha", "tip": "Two sharp teeth."}, {"char": "ヒ", "romaji": "hi", "tip": "Smile line."}, {"char": "フ", "romaji": "fu", "tip": "Blow out air."}, {"char": "ヘ", "romaji": "he", "tip": "Up arrow."}, {"char": "ホ", "romaji": "ho", "tip": "Santa ho-ho."}, {"char": "マ", "romaji": "ma", "tip": "Mummy head."}, {"char": "ミ", "romaji": "mi", "tip": "Music lines."}, {"char": "ム", "romaji": "mu", "tip": "Moo swirl."}, {"char": "メ", "romaji": "me", "tip": "Slash mark."}, {"char": "モ", "romaji": "mo", "tip": "Comb shape."}, {"char": "ヤ", "romaji": "ya", "tip": "Yak horn."}, {"char": "ユ", "romaji": "yu", "tip": "Yule hook."}, {"char": "ヨ", "romaji": "yo", "tip": "Yo-yo string."}, {"char": "ラ", "romaji": "ra", "tip": "Rabbit ear."}, {"char": "リ", "romaji": "ri", "tip": "River reeds."}, {"char": "ル", "romaji": "ru", "tip": "Rumble swirl."}, {"char": "レ", "romaji": "re", "tip": "Raindrop."}, {"char": "ロ", "romaji": "ro", "tip": "Boxy road."}, {"char": "ワ", "romaji": "wa", "tip": "Wasp wings."}, {"char": "ヲ", "romaji": "wo", "tip": "Worm line."}, {"char": "ン", "romaji": "n", "tip": "Curl stroke."}];
+const katakanaDakuten = [{"char": "ガ", "romaji": "ga", "tip": "Katakana 'ka' with dakuten."}, {"char": "ギ", "romaji": "gi", "tip": "Katakana 'ki' with dakuten."}, {"char": "グ", "romaji": "gu", "tip": "Katakana 'ku' with dakuten."}, {"char": "ゲ", "romaji": "ge", "tip": "Katakana 'ke' with dakuten."}, {"char": "ゴ", "romaji": "go", "tip": "Katakana 'ko' with dakuten."}, {"char": "ザ", "romaji": "za", "tip": "Katakana 'sa' with dakuten."}, {"char": "ジ", "romaji": "ji", "tip": "Katakana 'shi' with dakuten."}, {"char": "ズ", "romaji": "zu", "tip": "Katakana 'su' with dakuten."}, {"char": "ゼ", "romaji": "ze", "tip": "Katakana 'se' with dakuten."}, {"char": "ゾ", "romaji": "zo", "tip": "Katakana 'so' with dakuten."}, {"char": "ダ", "romaji": "da", "tip": "Katakana 'ta' with dakuten."}, {"char": "ヂ", "romaji": "ji", "tip": "Katakana 'chi' with dakuten."}, {"char": "ヅ", "romaji": "zu", "tip": "Katakana 'tsu' with dakuten."}, {"char": "デ", "romaji": "de", "tip": "Katakana 'te' with dakuten."}, {"char": "ド", "romaji": "do", "tip": "Katakana 'to' with dakuten."}, {"char": "バ", "romaji": "ba", "tip": "Katakana 'ha' with dakuten."}, {"char": "ビ", "romaji": "bi", "tip": "Katakana 'hi' with dakuten."}, {"char": "ブ", "romaji": "bu", "tip": "Katakana 'fu' with dakuten."}, {"char": "ベ", "romaji": "be", "tip": "Katakana 'he' with dakuten."}, {"char": "ボ", "romaji": "bo", "tip": "Katakana 'ho' with dakuten."}, {"char": "パ", "romaji": "pa", "tip": "Katakana 'ha' with handakuten."}, {"char": "ピ", "romaji": "pi", "tip": "Katakana 'hi' with handakuten."}, {"char": "プ", "romaji": "pu", "tip": "Katakana 'fu' with handakuten."}, {"char": "ペ", "romaji": "pe", "tip": "Katakana 'he' with handakuten."}, {"char": "ポ", "romaji": "po", "tip": "Katakana 'ho' with handakuten."}];
+const katakanaCombo = [{"char": "キャ", "romaji": "kya", "tip": "Katakana combo 'ki' + 'ya'."}, {"char": "キュ", "romaji": "kyu", "tip": "Katakana combo 'ki' + 'yu'."}, {"char": "キョ", "romaji": "kyo", "tip": "Katakana combo 'ki' + 'yo'."}, {"char": "シャ", "romaji": "sha", "tip": "Katakana combo 'shi' + 'ya'."}, {"char": "シュ", "romaji": "shu", "tip": "Katakana combo 'shi' + 'yu'."}, {"char": "ショ", "romaji": "sho", "tip": "Katakana combo 'shi' + 'yo'."}, {"char": "チャ", "romaji": "cha", "tip": "Katakana combo 'chi' + 'ya'."}, {"char": "チュ", "romaji": "chu", "tip": "Katakana combo 'chi' + 'yu'."}, {"char": "チョ", "romaji": "cho", "tip": "Katakana combo 'chi' + 'yo'."}, {"char": "ニャ", "romaji": "nya", "tip": "Katakana combo 'ni' + 'ya'."}, {"char": "ニュ", "romaji": "nyu", "tip": "Katakana combo 'ni' + 'yu'."}, {"char": "ニョ", "romaji": "nyo", "tip": "Katakana combo 'ni' + 'yo'."}, {"char": "ヒャ", "romaji": "hya", "tip": "Katakana combo 'hi' + 'ya'."}, {"char": "ヒュ", "romaji": "hyu", "tip": "Katakana combo 'hi' + 'yu'."}, {"char": "ヒョ", "romaji": "hyo", "tip": "Katakana combo 'hi' + 'yo'."}, {"char": "ミャ", "romaji": "mya", "tip": "Katakana combo 'mi' + 'ya'."}, {"char": "ミュ", "romaji": "myu", "tip": "Katakana combo 'mi' + 'yu'."}, {"char": "ミョ", "romaji": "myo", "tip": "Katakana combo 'mi' + 'yo'."}, {"char": "リャ", "romaji": "rya", "tip": "Katakana combo 'ri' + 'ya'."}, {"char": "リュ", "romaji": "ryu", "tip": "Katakana combo 'ri' + 'yu'."}, {"char": "リョ", "romaji": "ryo", "tip": "Katakana combo 'ri' + 'yo'."}, {"char": "ギャ", "romaji": "gya", "tip": "Katakana combo 'gi' + 'ya'."}, {"char": "ギュ", "romaji": "gyu", "tip": "Katakana combo 'gi' + 'yu'."}, {"char": "ギョ", "romaji": "gyo", "tip": "Katakana combo 'gi' + 'yo'."}, {"char": "ビャ", "romaji": "bya", "tip": "Katakana combo 'bi' + 'ya'."}, {"char": "ビュ", "romaji": "byu", "tip": "Katakana combo 'bi' + 'yu'."}, {"char": "ビョ", "romaji": "byo", "tip": "Katakana combo 'bi' + 'yo'."}, {"char": "ピャ", "romaji": "pya", "tip": "Katakana combo 'pi' + 'ya'."}, {"char": "ピュ", "romaji": "pyu", "tip": "Katakana combo 'pi' + 'yu'."}, {"char": "ピョ", "romaji": "pyo", "tip": "Katakana combo 'pi' + 'yo'."}];
+const katakanaMap = katakanaMain; // default fallback[{"char": "ア", "romaji": "a", "tip": "Antenna."}, {"char": "イ", "romaji": "i", "tip": "Roman II."}, {"char": "ウ", "romaji": "u", "tip": "Beak 'u'."}, {"char": "エ", "romaji": "e", "tip": "Capital H energy."}, {"char": "オ", "romaji": "o", "tip": "Flag bearer."}, {"char": "カ", "romaji": "ka", "tip": "Katana blade."}, {"char": "キ", "romaji": "ki", "tip": "Key prongs."}, {"char": "ク", "romaji": "ku", "tip": "Bird beak."}, {"char": "ケ", "romaji": "ke", "tip": "Kettle top."}, {"char": "コ", "romaji": "ko", "tip": "Co-lines."}, {"char": "サ", "romaji": "sa", "tip": "Scythe slash."}, {"char": "シ", "romaji": "shi", "tip": "Flowing hair."}, {"char": "ス", "romaji": "su", "tip": "Soup hook."}, {"char": "セ", "romaji": "se", "tip": "Flipped E."}, {"char": "ソ", "romaji": "so", "tip": "Thread loop."}, {"char": "タ", "romaji": "ta", "tip": "T-shape."}, {"char": "チ", "romaji": "chi", "tip": "Cheek curl."}, {"char": "ツ", "romaji": "tsu", "tip": "Drops down."}, {"char": "テ", "romaji": "te", "tip": "Telephone pole."}, {"char": "ト", "romaji": "to", "tip": "Toe stab."}, {"char": "ナ", "romaji": "na", "tip": "Nail line."}, {"char": "ニ", "romaji": "ni", "tip": "Neat lines."}, {"char": "ヌ", "romaji": "nu", "tip": "Noodle curl."}, {"char": "ネ", "romaji": "ne", "tip": "Net hook."}, {"char": "ノ", "romaji": "no", "tip": "Single stroke."}, {"char": "ハ", "romaji": "ha", "tip": "Two sharp teeth."}, {"char": "ヒ", "romaji": "hi", "tip": "Smile line."}, {"char": "フ", "romaji": "fu", "tip": "Blow out air."}, {"char": "ヘ", "romaji": "he", "tip": "Up arrow."}, {"char": "ホ", "romaji": "ho", "tip": "Santa ho-ho."}, {"char": "マ", "romaji": "ma", "tip": "Mummy head."}, {"char": "ミ", "romaji": "mi", "tip": "Music lines."}, {"char": "ム", "romaji": "mu", "tip": "Moo swirl."}, {"char": "メ", "romaji": "me", "tip": "Slash mark."}, {"char": "モ", "romaji": "mo", "tip": "Comb shape."}, {"char": "ヤ", "romaji": "ya", "tip": "Yak horn."}, {"char": "ユ", "romaji": "yu", "tip": "Yule hook."}, {"char": "ヨ", "romaji": "yo", "tip": "Yo-yo string."}, {"char": "ラ", "romaji": "ra", "tip": "Rabbit ear."}, {"char": "リ", "romaji": "ri", "tip": "River reeds."}, {"char": "ル", "romaji": "ru", "tip": "Rumble swirl."}, {"char": "レ", "romaji": "re", "tip": "Raindrop."}, {"char": "ロ", "romaji": "ro", "tip": "Boxy road."}, {"char": "ワ", "romaji": "wa", "tip": "Wasp wings."}, {"char": "ヲ", "romaji": "wo", "tip": "Worm line."}, {"char": "ン", "romaji": "n", "tip": "Curl stroke."}];
+
+    let current = {};
+    let scriptType = "";
+    let streak = 0;
+    let wrongCounts = {};
+    let history = [];
+    let questionCount = 0;
+    let answered = false;
+
+    function showKatakanaOptions() {
+      document.getElementById("katakanaOptions").style.display = "block";
+    }
+
+function startQuiz(type) {
+  if (type === 'katakana') {
+    scriptType = 'katakana';
+    currentList = [...katakanaMain, ...katakanaDakuten, ...katakanaCombo];
+  } else {
+    scriptType = type;
+    currentList = scriptType === 'hiragana' ? hiraganaMap : katakanaMain;
+  }
+
+  document.getElementById("menu").style.display = "none";
+  document.getElementById("quiz").style.display = "block";
+  getNextCharacter();
+}
+
+    function goBackToMenu() {
+      document.getElementById("quiz").style.display = "none";
+      document.getElementById("summarySection").style.display = "none";
+      document.getElementById("menu").style.display = "block";
+      streak = 0;
+      history = [];
+      questionCount = 0;
+    }
+
+    function getNextCharacter() {
+      const map = [...(scriptType === 'hiragana' ? hiraganaMap : currentList)];
+      map.sort((a, b) => (wrongCounts[b.char] || 0) - (wrongCounts[a.char] || 0));
+      current = map[Math.floor(Math.random() * map.length)];
+      document.getElementById("quizChar").textContent = current.char;
+      document.getElementById("userInput").value = "";
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("tip").textContent = "";
+      document.getElementById("nextButton").style.display = "none";
+      answered = false;
+    }
+
+    function checkAnswer() {
+      if (answered) return;
+      answered = true;
+
+      const input = document.getElementById("userInput").value.trim().toLowerCase();
+      const feedback = document.getElementById("feedback");
+      const tip = document.getElementById("tip");
+      const correct = input === current.romaji;
+      questionCount++;
+
+      if (correct) {
+        feedback.textContent = "Correct!";
+        feedback.style.color = "lightgreen";
+        tip.textContent = "";
+        document.getElementById("streak").textContent = `Streak: ${++streak}`;
+      } else {
+        feedback.textContent = `Incorrect. Answer: ${current.romaji}`;
+        feedback.style.color = "#ff8080";
+        tip.textContent = `Tip: ${current.tip}`;
+        wrongCounts[current.char] = (wrongCounts[current.char] || 0) + 1;
+        history.push(`❌ ${current.char} → ${current.romaji} — ${current.tip}`);
+        streak = 0;
+        document.getElementById("streak").textContent = "Streak: 0";
+      }
+
+      if (questionCount > 0 && questionCount % 20 === 0) {
+        document.getElementById("quiz").style.display = "none";
+        const summaryList = document.getElementById("summaryList");
+        summaryList.innerHTML = history.length ? history.map(item => `<div>${item}</div>`).join('') : "<p>No mistakes! Great job!</p>";
+        document.getElementById("summarySection").style.display = "block";
+      } else {
+        document.getElementById("nextButton").style.display = "block";
+      }
+    }
+
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        const nextVisible = document.getElementById("nextButton").style.display === "block";
+        nextVisible ? getNextCharacter() : checkAnswer();
+      }
+    });
+  
+    function continueQuiz() {
+      document.getElementById("summarySection").style.display = "none";
+      document.getElementById("quiz").style.display = "block";
+      getNextCharacter();
+    }
+    </script>
+
+</body>
+</html>
