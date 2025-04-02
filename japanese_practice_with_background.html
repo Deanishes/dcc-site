@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Japanese Practice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: url('peakpx.jpg') center center / cover no-repeat fixed;
+      background-color: rgba(0, 0, 0, 0.5);
+      background-blend-mode: overlay;
+    }
+
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      padding: 30px 20px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .char-display {
+      font-size: 64px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      width: 100%;
+      font-size: 18px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #e60012;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      margin-top: 16px;
+      border-radius: 24px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #cc0010;
+    }
+
+    .feedback, .tip, .streak {
+      margin-top: 15px;
+    }
+
+    .feedback {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .tip {
+      font-size: 14px;
+      color: #777;
+    }
+
+    .streak {
+      font-size: 16px;
+      font-weight: bold;
+      color: #0070f3;
+    }
+
+    #quiz, #nextButton, #summarySection {
+      display: none;
+    }
+
+    .summary {
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="menu">
+      <img src="Obsidea-02.png" alt="Obsidea Logo" class="logo" />
+      <h2>Select Practice Session</h2>
+      <button onclick="startQuiz('hiragana')">Hiragana</button>
+      <button onclick="startQuiz('katakana')">Katakana</button>
+    </div>
+
+    <div id="quiz">
+      <div class="char-display" id="quizChar">あ</div>
+      <input type="text" id="userInput" placeholder="Type romaji..." />
+      <button onclick="checkAnswer()">Check</button>
+      <div class="feedback" id="feedback"></div>
+      <div class="tip" id="tip"></div>
+      <div class="streak" id="streak">Streak: 0</div>
+      <button id="nextButton" onclick="getNextCharacter()">Next</button>
+      <div style="margin-top: 20px;"><a href="#" onclick="goBackToMenu()" style="color: #0070f3; font-size: 14px; text-decoration: underline;">Back to Menu</a></div>
+    </div>
+
+    <div id="summarySection">
+      <h3>Review Your Mistakes</h3>
+      <div class="summary" id="summaryList"></div>
+      <div style="margin-top: 20px;"><a href="#" onclick="goBackToMenu()" style="color: #0070f3; font-size: 14px; text-decoration: underline;">Back to Menu</a></div>
+    </div>
+  </div>
+
+  <audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
+
+  <script>
+    const hiraganaMap = [{"char": "あ", "romaji": "a", "tip": "Looks like an apple with a stem."}, {"char": "い", "romaji": "i", "tip": "Two sticks like the number II."}, {"char": "う", "romaji": "u", "tip": "A bird with wings up."}, {"char": "え", "romaji": "e", "tip": "Energetic jumper."}, {"char": "お", "romaji": "o", "tip": "Octopus tentacle."}, {"char": "か", "romaji": "ka", "tip": "Cut with a katana."}, {"char": "き", "romaji": "ki", "tip": "Key shape."}, {"char": "く", "romaji": "ku", "tip": "Bird’s beak saying 'ku'."}, {"char": "け", "romaji": "ke", "tip": "Kettle with a handle."}, {"char": "こ", "romaji": "ko", "tip": "Two co-workers side by side."}, {"char": "さ", "romaji": "sa", "tip": "Scythe for salmon fishing."}, {"char": "し", "romaji": "shi", "tip": "Hook or 'she' with hair."}, {"char": "す", "romaji": "su", "tip": "Soup swirling in a bowl."}, {"char": "せ", "romaji": "se", "tip": "Set of tools."}, {"char": "そ", "romaji": "so", "tip": "Sewing thread."}, {"char": "た", "romaji": "ta", "tip": "'Ta-da!' pose."}, {"char": "ち", "romaji": "chi", "tip": "Looks like a cheek."}, {"char": "つ", "romaji": "tsu", "tip": "Tsunami droplet."}, {"char": "て", "romaji": "te", "tip": "Tennis racket."}, {"char": "と", "romaji": "to", "tip": "Toe stub."}, {"char": "な", "romaji": "na", "tip": "Knot shape."}, {"char": "に", "romaji": "ni", "tip": "Neat lines."}, {"char": "ぬ", "romaji": "nu", "tip": "Loop like noodle."}, {"char": "ね", "romaji": "ne", "tip": "Nest swirl."}, {"char": "の", "romaji": "no", "tip": "'No entry' swirl."}, {"char": "は", "romaji": "ha", "tip": "Ha ha sharp teeth."}, {"char": "ひ", "romaji": "hi", "tip": "Smiling 'hee hee' face."}, {"char": "ふ", "romaji": "fu", "tip": "Blowing 'foo' wind."}, {"char": "へ", "romaji": "he", "tip": "Arrow to heaven."}, {"char": "ほ", "romaji": "ho", "tip": "Ho ho ho Santa arms."}, {"char": "ま", "romaji": "ma", "tip": "Mama hugging."}, {"char": "み", "romaji": "mi", "tip": "Music lines."}, {"char": "む", "romaji": "mu", "tip": "Cow face."}, {"char": "め", "romaji": "me", "tip": "Meandering loop."}, {"char": "も", "romaji": "mo", "tip": "Monster face."}, {"char": "や", "romaji": "ya", "tip": "Yarn shape."}, {"char": "ゆ", "romaji": "yu", "tip": "Yule hook."}, {"char": "よ", "romaji": "yo", "tip": "Yo-yo string."}, {"char": "ら", "romaji": "ra", "tip": "Rabbit ear."}, {"char": "り", "romaji": "ri", "tip": "River reeds."}, {"char": "る", "romaji": "ru", "tip": "Rumble swirl."}, {"char": "れ", "romaji": "re", "tip": "Raindrop."}, {"char": "ろ", "romaji": "ro", "tip": "Road loop."}, {"char": "わ", "romaji": "wa", "tip": "Wasp wings."}, {"char": "を", "romaji": "wo", "tip": "Worm shape."}, {"char": "ん", "romaji": "n", "tip": "Curling 'n'."}];
+const katakanaMap = [{"char": "ア", "romaji": "a", "tip": "Antenna."}, {"char": "イ", "romaji": "i", "tip": "Roman II."}, {"char": "ウ", "romaji": "u", "tip": "Beak 'u'."}, {"char": "エ", "romaji": "e", "tip": "Capital H energy."}, {"char": "オ", "romaji": "o", "tip": "Flag bearer."}, {"char": "カ", "romaji": "ka", "tip": "Katana blade."}, {"char": "キ", "romaji": "ki", "tip": "Key prongs."}, {"char": "ク", "romaji": "ku", "tip": "Bird beak."}, {"char": "ケ", "romaji": "ke", "tip": "Kettle top."}, {"char": "コ", "romaji": "ko", "tip": "Co-lines."}, {"char": "サ", "romaji": "sa", "tip": "Scythe slash."}, {"char": "シ", "romaji": "shi", "tip": "Flowing hair."}, {"char": "ス", "romaji": "su", "tip": "Soup hook."}, {"char": "セ", "romaji": "se", "tip": "Flipped E."}, {"char": "ソ", "romaji": "so", "tip": "Thread loop."}, {"char": "タ", "romaji": "ta", "tip": "T-shape."}, {"char": "チ", "romaji": "chi", "tip": "Cheek curl."}, {"char": "ツ", "romaji": "tsu", "tip": "Drops down."}, {"char": "テ", "romaji": "te", "tip": "Telephone pole."}, {"char": "ト", "romaji": "to", "tip": "Toe stab."}, {"char": "ナ", "romaji": "na", "tip": "Nail line."}, {"char": "ニ", "romaji": "ni", "tip": "Neat lines."}, {"char": "ヌ", "romaji": "nu", "tip": "Noodle curl."}, {"char": "ネ", "romaji": "ne", "tip": "Net hook."}, {"char": "ノ", "romaji": "no", "tip": "Single stroke."}, {"char": "ハ", "romaji": "ha", "tip": "Two sharp teeth."}, {"char": "ヒ", "romaji": "hi", "tip": "Smile line."}, {"char": "フ", "romaji": "fu", "tip": "Blow out air."}, {"char": "ヘ", "romaji": "he", "tip": "Up arrow."}, {"char": "ホ", "romaji": "ho", "tip": "Santa ho-ho."}, {"char": "マ", "romaji": "ma", "tip": "Mummy head."}, {"char": "ミ", "romaji": "mi", "tip": "Music lines."}, {"char": "ム", "romaji": "mu", "tip": "Moo swirl."}, {"char": "メ", "romaji": "me", "tip": "Slash mark."}, {"char": "モ", "romaji": "mo", "tip": "Comb shape."}, {"char": "ヤ", "romaji": "ya", "tip": "Yak horn."}, {"char": "ユ", "romaji": "yu", "tip": "Yule hook."}, {"char": "ヨ", "romaji": "yo", "tip": "Yo-yo string."}, {"char": "ラ", "romaji": "ra", "tip": "Rabbit ear."}, {"char": "リ", "romaji": "ri", "tip": "River reeds."}, {"char": "ル", "romaji": "ru", "tip": "Rumble swirl."}, {"char": "レ", "romaji": "re", "tip": "Raindrop."}, {"char": "ロ", "romaji": "ro", "tip": "Boxy road."}, {"char": "ワ", "romaji": "wa", "tip": "Wasp wings."}, {"char": "ヲ", "romaji": "wo", "tip": "Worm line."}, {"char": "ン", "romaji": "n", "tip": "Curl stroke."}];
+
+      { char: "あ", romaji: "a", tip: "Apple stem" },
+      { char: "い", romaji: "i", tip: "Two sticks, II" },
+      { char: "う", romaji: "u", tip: "Bird wings saying 'oo'" },
+      { char: "ん", romaji: "n", tip: "Curl like 'n'" }
+    ];
+    const katakanaMap = [
+      { char: "ア", romaji: "a", tip: "Antenna" },
+      { char: "イ", romaji: "i", tip: "Roman II" },
+      { char: "ウ", romaji: "u", tip: "Beak 'u'" },
+      { char: "ン", romaji: "n", tip: "Hook stroke" }
+    ];
+
+    let current = {};
+    let scriptType = "";
+    let streak = 0;
+    let wrongCounts = {};
+    let history = [];
+    let questionCount = 0;
+    let answered = false;
+
+    function startQuiz(type) {
+      scriptType = type;
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("quiz").style.display = "block";
+      getNextCharacter();
+    }
+
+    function goBackToMenu() {
+      document.getElementById("quiz").style.display = "none";
+      document.getElementById("summarySection").style.display = "none";
+      document.getElementById("menu").style.display = "block";
+      streak = 0;
+      history = [];
+      questionCount = 0;
+    }
+
+    function getNextCharacter() {
+      const map = [...(scriptType === "hiragana" ? hiraganaMap : katakanaMap)];
+      map.sort((a, b) => (wrongCounts[b.char] || 0) - (wrongCounts[a.char] || 0));
+      current = map[Math.floor(Math.random() * Math.min(map.length, 3))];
+      document.getElementById("quizChar").textContent = current.char;
+      document.getElementById("userInput").value = "";
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("tip").textContent = "";
+      document.getElementById("nextButton").style.display = "none";
+      answered = false;
+    }
+
+    function checkAnswer() {
+      if (answered) return;
+      answered = true;
+
+      const input = document.getElementById("userInput").value.trim().toLowerCase();
+      const feedback = document.getElementById("feedback");
+      const tip = document.getElementById("tip");
+      const correct = input === current.romaji;
+      questionCount++;
+      document.getElementById(correct ? "correctSound" : "wrongSound").play();
+
+      if (correct) {
+        feedback.textContent = "Correct!";
+        feedback.style.color = "green";
+        tip.textContent = "";
+        document.getElementById("streak").textContent = `Streak: ${++streak}`;
+      } else {
+        feedback.textContent = `Incorrect. Answer: ${current.romaji}`;
+        feedback.style.color = "red";
+        tip.textContent = `Tip: ${current.tip}`;
+        wrongCounts[current.char] = (wrongCounts[current.char] || 0) + 1;
+        history.push(`❌ ${current.char} → ${current.romaji} — ${current.tip}`);
+        streak = 0;
+        document.getElementById("streak").textContent = "Streak: 0";
+      }
+
+      if (questionCount >= 15) {
+        document.getElementById("quiz").style.display = "none";
+        const summaryList = document.getElementById("summaryList");
+        summaryList.innerHTML = history.length ? history.map(item => `<div>${item}</div>`).join('') : "<p>No mistakes! Great job!</p>";
+        document.getElementById("summarySection").style.display = "block";
+      } else {
+        document.getElementById("nextButton").style.display = "block";
+      }
+    }
+
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        const nextVisible = document.getElementById("nextButton").style.display === "block";
+        nextVisible ? getNextCharacter() : checkAnswer();
+      }
+    });
+  </script>
+</body>
+</html>
