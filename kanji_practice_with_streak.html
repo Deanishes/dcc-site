@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kanji Practice</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      text-align: center;
+      width: 320px;
+    }
+    .kanji {
+      font-size: 64px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      padding: 10px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      width: 100%;
+      font-size: 18px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #e60012;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      margin-top: 16px;
+      border-radius: 24px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #cc0010;
+    }
+    .feedback {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .tip {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+    .streak {
+      margin-top: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #0070f3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="kanji" id="kanjiChar">日</div>
+    <input type="text" id="kanjiInput" placeholder="Type meaning..." />
+    <button onclick="checkAnswer()">Check</button>
+    <div class="feedback" id="feedback"></div>
+    <div class="tip" id="tip"></div>
+    <div class="streak" id="streak">Streak: 0</div>
+  </div>
+
+  <script>
+    const kanjiMap = [{"char": "\u65e5", "meaning": "sun/day", "tip": "Looks like the sun or a window through which the sun shines."}, {"char": "\u4e00", "meaning": "one", "tip": "A single horizontal stroke for 'one'."}, {"char": "\u56fd", "meaning": "country", "tip": "A box representing land or area with a gem inside, symbolizing a country."}, {"char": "\u4eba", "meaning": "person", "tip": "Looks like a walking person with two legs."}, {"char": "\u5e74", "meaning": "year", "tip": "A farmer with a tool symbolizing the passage of a year."}, {"char": "\u5927", "meaning": "big", "tip": "A person with outstretched arms showing size."}, {"char": "\u5341", "meaning": "ten", "tip": "Crossed lines, like the Roman numeral X for ten."}, {"char": "\u4e8c", "meaning": "two", "tip": "Two horizontal lines."}, {"char": "\u672c", "meaning": "book/origin", "tip": "A tree with a root line at the bottom \u2014 origin or book."}, {"char": "\u4e2d", "meaning": "middle", "tip": "A box with a line through the center \u2014 middle."}, {"char": "\u9577", "meaning": "long/leader", "tip": "A person with long hair \u2014 long or head of family."}, {"char": "\u51fa", "meaning": "exit", "tip": "Two mountains, going out from one behind the other."}, {"char": "\u4e09", "meaning": "three", "tip": "Three horizontal lines."}, {"char": "\u6642", "meaning": "time/hour", "tip": "A sun next to a temple \u2014 time kept by the sun."}, {"char": "\u884c", "meaning": "go", "tip": "Intersection or road \u2014 to go or travel."}, {"char": "\u898b", "meaning": "see", "tip": "An eye with legs \u2014 to see."}, {"char": "\u6708", "meaning": "moon/month", "tip": "A crescent moon."}, {"char": "\u5f8c", "meaning": "after", "tip": "A person walking behind \u2014 after."}, {"char": "\u524d", "meaning": "before", "tip": "A foot and a knife \u2014 doing things ahead."}, {"char": "\u751f", "meaning": "life", "tip": "A sprouting plant \u2014 life or birth."}, {"char": "\u4e94", "meaning": "five", "tip": "Somewhat abstract, but five strokes in total."}, {"char": "\u9593", "meaning": "between", "tip": "A sun between gates \u2014 space or interval."}, {"char": "\u4e0a", "meaning": "up", "tip": "A line above \u2014 upward direction."}, {"char": "\u6771", "meaning": "east", "tip": "The sun rising behind a tree \u2014 east."}, {"char": "\u56db", "meaning": "four", "tip": "A box with four corners."}, {"char": "\u4eca", "meaning": "now", "tip": "A person with a hat on \u2014 present moment."}, {"char": "\u91d1", "meaning": "gold/money", "tip": "Shining nuggets \u2014 metal or money."}, {"char": "\u4e5d", "meaning": "nine", "tip": "Curved like a hook \u2014 resembles 9 in cursive."}, {"char": "\u5165", "meaning": "enter", "tip": "Two strokes going inward \u2014 entering."}, {"char": "\u5b66", "meaning": "study", "tip": "A child under a roof \u2014 learning place."}, {"char": "\u9ad8", "meaning": "tall/expensive", "tip": "A tower-like structure \u2014 height or cost."}, {"char": "\u5186", "meaning": "yen/circle", "tip": "A circle \u2014 the yen symbol."}, {"char": "\u5b50", "meaning": "child", "tip": "Looks like a child with arms up."}, {"char": "\u5916", "meaning": "outside", "tip": "A person escaping \u2014 outside."}, {"char": "\u516b", "meaning": "eight", "tip": "Looks like an open fan \u2014 shape of 8 in kanji."}, {"char": "\u516d", "meaning": "six", "tip": "Roof and legs \u2014 simplified representation of 6."}, {"char": "\u4e0b", "meaning": "down", "tip": "A line below \u2014 downward direction."}, {"char": "\u6765", "meaning": "come", "tip": "A tree in motion \u2014 come forth."}, {"char": "\u6c17", "meaning": "spirit", "tip": "Steam rising \u2014 breath or spirit."}, {"char": "\u5c0f", "meaning": "small", "tip": "Three small lines \u2014 tiny shapes."}, {"char": "\u4e03", "meaning": "seven", "tip": "Looks like a cut \u2014 seven cuts."}, {"char": "\u5c71", "meaning": "mountain", "tip": "Peaks of mountains."}, {"char": "\u8a71", "meaning": "talk", "tip": "Words coming from tongue."}, {"char": "\u5973", "meaning": "woman", "tip": "Shape of a kneeling woman."}, {"char": "\u5317", "meaning": "north", "tip": "Two backs turned \u2014 north wind."}, {"char": "\u5348", "meaning": "noon", "tip": "Clock hand at twelve."}, {"char": "\u767e", "meaning": "hundred", "tip": "One with many \u2014 top line for 1, rest for zeros."}, {"char": "\u66f8", "meaning": "write", "tip": "Hand writing with brush."}, {"char": "\u5148", "meaning": "ahead", "tip": "Person running \u2014 ahead of others."}, {"char": "\u540d", "meaning": "name", "tip": "Evening and mouth \u2014 called by name."}];
+    let current = {};
+    let streak = 0;
+
+    function getRandomCharacter() {
+      current = kanjiMap[Math.floor(Math.random() * kanjiMap.length)];
+      document.getElementById("kanjiChar").textContent = current.char;
+      document.getElementById("kanjiInput").value = "";
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("tip").textContent = "";
+    }
+
+    function checkAnswer() {
+      const input = document.getElementById("kanjiInput").value.trim().toLowerCase();
+      const feedback = document.getElementById("feedback");
+      const tip = document.getElementById("tip");
+
+      if (input === current.meaning.toLowerCase()) {
+        feedback.textContent = "Correct!";
+        feedback.style.color = "green";
+        tip.textContent = "";
+        document.getElementById("streak").textContent = `Streak: ${++streak}`;
+      } else {
+        feedback.textContent = `Incorrect. Answer: ${current.meaning}`;
+        feedback.style.color = "red";
+        tip.textContent = `Tip: ${current.tip}`;
+        streak = 0;
+        document.getElementById("streak").textContent = `Streak: ${streak}`;
+      }
+      setTimeout(getRandomCharacter, 3000);
+    }
+
+    getRandomCharacter();
+  </script>
+</body>
+</html>
