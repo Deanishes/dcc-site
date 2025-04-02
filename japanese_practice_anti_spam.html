@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Japanese Practice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg-color: #f4f4f4;
+      --text-color: #333;
+      --card-bg: #fff;
+    }
+
+    body.dark {
+      --bg-color: #121212;
+      --text-color: #f1f1f1;
+      --card-bg: #1e1e1e;
+    }
+
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      margin: 0;
+      padding: 0;
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      padding: 30px 20px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .char-display {
+      font-size: 64px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      width: 100%;
+      font-size: 18px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #e60012;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      margin-top: 16px;
+      border-radius: 24px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #cc0010;
+    }
+
+    .feedback, .tip, .streak {
+      margin-top: 15px;
+    }
+
+    .feedback {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .tip {
+      font-size: 14px;
+      color: #777;
+    }
+
+    .streak {
+      font-size: 16px;
+      font-weight: bold;
+      color: #0070f3;
+    }
+
+    .logo {
+      max-width: 160px;
+      margin-bottom: 20px;
+    }
+
+    #quiz, #nextButton, #summarySection {
+      display: none;
+    }
+
+    .dark-toggle, .help {
+      position: absolute;
+      top: 15px;
+      cursor: pointer;
+      font-size: 20px;
+      background: none;
+      border: none;
+      color: var(--text-color);
+    }
+
+    .dark-toggle {
+      right: 15px;
+    }
+
+    .help {
+      left: 15px;
+    }
+
+    .summary {
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="help" onclick="alert(helpText)">❓</button>
+    <button class="dark-toggle" onclick="toggleDarkMode()">🌓</button>
+
+    <div id="menu">
+      <img src="Obsidea-02.png" alt="Obsidea Logo" class="logo" />
+      <h2>Select Practice Session</h2>
+      <button onclick="startQuiz('hiragana')">Hiragana</button>
+      <button onclick="startQuiz('katakana')">Katakana</button>
+    </div>
+
+    <div id="quiz">
+      <div class="char-display" id="quizChar">あ</div>
+      <input type="text" id="userInput" placeholder="Type romaji..." />
+      <button onclick="checkAnswer()">Check</button>
+      <div class="feedback" id="feedback"></div>
+      <div class="tip" id="tip"></div>
+      <div class="streak" id="streak">Streak: 0</div>
+      <button id="nextButton" onclick="getNextCharacter()">Next</button>
+      <button onclick="goBackToMenu()">Back to Menu</button>
+    </div>
+
+    <div id="summarySection">
+      <h3>Review Your Mistakes</h3>
+      <div class="summary" id="summaryList"></div>
+      <button onclick="goBackToMenu()">Back to Menu</button>
+    </div>
+  </div>
+
+  <audio id="correctSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="wrongSound" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
+
+  <script>
+    const helpText = "Select a script (Hiragana or Katakana), then type the romaji (e.g. 'ka') for each character. Press Enter or click Check to answer. Use the moon icon to switch to dark mode. After 15 questions, you'll see a summary of mistakes. Try to build your streak!";
+    const hiraganaMap = [
+      {{ char: "あ", romaji: "a", tip: "Apple stem" }},
+      {{ char: "い", romaji: "i", tip: "Two sticks, II" }},
+      {{ char: "う", romaji: "u", tip: "Bird wings saying 'oo'" }},
+      {{ char: "ん", romaji: "n", tip: "Curl like 'n'" }}
+    ];
+    const katakanaMap = [
+      {{ char: "ア", romaji: "a", tip: "Antenna" }},
+      {{ char: "イ", romaji: "i", tip: "Roman II" }},
+      {{ char: "ウ", romaji: "u", tip: "Beak 'u'" }},
+      {{ char: "ン", romaji: "n", tip: "Hook stroke" }}
+    ];
+
+    let current = {{}};
+    let scriptType = "";
+    let streak = 0;
+    let wrongCounts = {{}};
+    let history = [];
+    let questionCount = 0;
+
+    function toggleDarkMode() {{
+      document.body.classList.toggle('dark');
+    }}
+
+    function startQuiz(type) {{
+      scriptType = type;
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("quiz").style.display = "block";
+      getNextCharacter();
+    }}
+
+    function goBackToMenu() {{
+      document.getElementById("quiz").style.display = "none";
+      document.getElementById("summarySection").style.display = "none";
+      document.getElementById("menu").style.display = "block";
+      streak = 0;
+      history = [];
+      questionCount = 0;
+    }}
+
+    function getNextCharacter() {
+      answered = false;{
+      const map = [...(scriptType === "hiragana" ? hiraganaMap : katakanaMap)];
+      map.sort((a, b) => (wrongCounts[b.char] || 0) - (wrongCounts[a.char] || 0));
+      current = map[Math.floor(Math.random() * Math.min(map.length, 3))];
+      document.getElementById("quizChar").textContent = current.char;
+      document.getElementById("userInput").value = "";
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("tip").textContent = "";
+      document.getElementById("nextButton").style.display = "none";
+    }}
+
+    function checkAnswer() {
+      if (answered) return;
+      answered = true;{
+      const input = document.getElementById("userInput").value.trim().toLowerCase();
+      const feedback = document.getElementById("feedback");
+      const tip = document.getElementById("tip");
+      const correct = input === current.romaji;
+      questionCount++;
+      document.getElementById(correct ? "correctSound" : "wrongSound").play();
+
+      if (correct) {{
+        feedback.textContent = "Correct!";
+        feedback.style.color = "green";
+        tip.textContent = "";
+        document.getElementById("streak").textContent = `Streak: ${{++streak}}`;
+      }} else {{
+        feedback.textContent = `Incorrect. Answer: ${{current.romaji}}`;
+        feedback.style.color = "red";
+        tip.textContent = `Tip: ${{current.tip}}`;
+        wrongCounts[current.char] = (wrongCounts[current.char] || 0) + 1;
+        history.push(`❌ ${current.char} → ${current.romaji} — ${current.tip}`);
+        streak = 0;
+        document.getElementById("streak").textContent = "Streak: 0";
+      }}
+
+      if (questionCount >= 15) {{
+        document.getElementById("quiz").style.display = "none";
+        const summaryList = document.getElementById("summaryList");
+        summaryList.innerHTML = history.length ? history.map(item => `<div>${{item}}</div>`).join('') : "<p>No mistakes! Great job!</p>";
+        document.getElementById("summarySection").style.display = "block";
+      }} else {{
+        document.getElementById("nextButton").style.display = "block";
+      }}
+    }}
+
+    document.addEventListener("keydown", function(e) {{
+      if (e.key === "Enter") {{
+        const nextVisible = document.getElementById("nextButton").style.display === "block";
+        nextVisible ? getNextCharacter() : checkAnswer();
+      }}
+    }});
+  </script>
+</body>
+</html>
