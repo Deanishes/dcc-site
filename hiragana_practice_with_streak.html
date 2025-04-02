@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hiragana Practice</title>
+  <style>
+    .streak {
+      margin-top: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #0070f3;
+    }
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      text-align: center;
+      width: 320px;
+    }
+
+    .hiragana {
+      font-size: 64px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      width: 100%;
+      font-size: 18px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #e60012;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      margin-top: 16px;
+      border-radius: 24px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #cc0010;
+    }
+
+    .feedback {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .tip {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hiragana" id="hiraganaChar">あ</div>
+    <input type="text" id="romajiInput" placeholder="Type romaji..." />
+    <button onclick="checkAnswer()">Check</button>
+    <div class="feedback" id="feedback"></div><div class="tip" id="tip"></div><div class="streak" id="streak">Streak: 0</div>
+    <div class="tip" id="tip"></div>
+  </div>
+
+  <script>
+    const hiraganaMap = [{"char": "\u3042", "romaji": "a", "tip": "Looks like an apple with a stem. 'A' is for apple."}, {"char": "\u3044", "romaji": "i", "tip": "Two sticks standing straight like the Roman numeral II. 'I' sounds like 'ee'."}, {"char": "\u3046", "romaji": "u", "tip": "Looks like a bird with wings up saying 'oo'."}, {"char": "\u3048", "romaji": "e", "tip": "Looks like an energetic person jumping \u2014 'E' for energy."}, {"char": "\u304a", "romaji": "o", "tip": "Has a tail like an 'octopus' \u2014 'O' is for octopus."}, {"char": "\u304b", "romaji": "ka", "tip": "Like a 'cut' with a knife \u2014 'Ka' as in katana."}, {"char": "\u304d", "romaji": "ki", "tip": "Looks like a key with two teeth. 'Ki' = key."}, {"char": "\u304f", "romaji": "ku", "tip": "A bird's beak saying 'ku ku'."}, {"char": "\u3051", "romaji": "ke", "tip": "'Keg' with a spout."}, {"char": "\u3053", "romaji": "ko", "tip": "Two lines like co-workers side by side."}, {"char": "\u3055", "romaji": "sa", "tip": "'Sa' looks like a hook or fishing rod \u2014 'sa' for salmon fishing."}, {"char": "\u3057", "romaji": "shi", "tip": "Looks like a hook or 'she' with long hair."}, {"char": "\u3059", "romaji": "su", "tip": "A swirl like 'soup' spinning in a bowl."}, {"char": "\u305b", "romaji": "se", "tip": "Looks like a 'set' of tools."}, {"char": "\u305d", "romaji": "so", "tip": "Curved like sewing thread \u2014 'so' for sewing."}, {"char": "\u305f", "romaji": "ta", "tip": "Looks like 'ta-da!' a person lifting arms."}, {"char": "\u3061", "romaji": "chi", "tip": "Curved like a 'cheek' \u2014 'chi' for cheeky."}, {"char": "\u3064", "romaji": "tsu", "tip": "Droplet shape \u2014 'tsunami' begins with 'tsu'."}, {"char": "\u3066", "romaji": "te", "tip": "Looks like a 'tennis racket'."}, {"char": "\u3068", "romaji": "to", "tip": "Sharp like a 'toe' getting stubbed."}, {"char": "\u306a", "romaji": "na", "tip": "'Na' looks like a knot."}, {"char": "\u306b", "romaji": "ni", "tip": "Two neat lines \u2014 'ni' for neat."}, {"char": "\u306c", "romaji": "nu", "tip": "A loop like a noodle \u2014 'nu' for noodle."}, {"char": "\u306d", "romaji": "ne", "tip": "'Ne' for nest \u2014 has a curl like a nest."}, {"char": "\u306e", "romaji": "no", "tip": "A circle like 'no entry' sign."}, {"char": "\u306f", "romaji": "ha", "tip": "'Ha' has a hat on top."}, {"char": "\u3072", "romaji": "hi", "tip": "Smiling face \u2014 'hee hee'."}, {"char": "\u3075", "romaji": "fu", "tip": "Blowing out \u2014 like 'foo!' air out of mouth."}, {"char": "\u3078", "romaji": "he", "tip": "Like a roof pointing 'heavenward'."}, {"char": "\u307b", "romaji": "ho", "tip": "'Ho ho ho' \u2014 looks like Santa with arms up."}, {"char": "\u307e", "romaji": "ma", "tip": "Looks like a mama hugging."}, {"char": "\u307f", "romaji": "mi", "tip": "Three lines \u2014 'mi' for music."}, {"char": "\u3080", "romaji": "mu", "tip": "A cow's face \u2014 'moo' for mu."}, {"char": "\u3081", "romaji": "me", "tip": "A loop like a 'meandering' path."}, {"char": "\u3082", "romaji": "mo", "tip": "Looks like a monster's face \u2014 'mo' for monster."}, {"char": "\u3084", "romaji": "ya", "tip": "Yarn shape \u2014 'ya' for yarn."}, {"char": "\u3086", "romaji": "yu", "tip": "Like a hook \u2014 'yu' for yule hook."}, {"char": "\u3088", "romaji": "yo", "tip": "Three lines \u2014 'yo-yo' shape."}, {"char": "\u3089", "romaji": "ra", "tip": "Like a rabbit's ear \u2014 'ra' for rabbit."}, {"char": "\u308a", "romaji": "ri", "tip": "Two reeds \u2014 'ri' for river reeds."}, {"char": "\u308b", "romaji": "ru", "tip": "Like a snail \u2014 'ru' for rumble."}, {"char": "\u308c", "romaji": "re", "tip": "Raindrop \u2014 're' for rain."}, {"char": "\u308d", "romaji": "ro", "tip": "A road turning \u2014 'ro' for road."}, {"char": "\u308f", "romaji": "wa", "tip": "Like a 'wasp' buzzing around."}, {"char": "\u3092", "romaji": "wo", "tip": "Looks like a 'worm' \u2014 'wo' for worm."}, {"char": "\u3093", "romaji": "n", "tip": "Like the letter 'n' in a curl."}];
+    let current = {};
+    let streak = 0;
+
+    function getRandomCharacter() {
+      current = hiraganaMap[Math.floor(Math.random() * hiraganaMap.length)];
+      document.getElementById("hiraganaChar").textContent = current.char;
+      document.getElementById("romajiInput").value = "";
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("tip").textContent = "";
+    }
+
+    function checkAnswer() {
+      const input = document.getElementById("romajiInput").value.trim().toLowerCase();
+      const feedback = document.getElementById("feedback");
+      const tip = document.getElementById("tip");
+
+      if (input === current.romaji) {
+        feedback.textContent = "Correct!";
+        feedback.style.color = "green";
+        tip.textContent = "";
+        document.getElementById("streak").textContent = `Streak: ${++streak}`;
+      } else {
+        feedback.textContent = `Incorrect. Answer: ${current.romaji}`;
+        feedback.style.color = "red";
+        tip.textContent = `Tip: ${current.tip}`;
+        streak = 0;
+        document.getElementById("streak").textContent = `Streak: ${streak}`;
+      }
+      setTimeout(getRandomCharacter, 3000);
+    }
+
+    getRandomCharacter();
+  </script>
+</body>
+</html>
