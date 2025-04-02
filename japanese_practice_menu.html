@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Japanese Practice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      padding: 30px 20px;
+      text-align: center;
+      width: 90%;
+      max-width: 350px;
+    }
+    .char-display {
+      font-size: 64px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      padding: 10px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      width: 100%;
+      font-size: 18px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #e60012;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      margin-top: 16px;
+      border-radius: 24px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #cc0010;
+    }
+    .feedback, .tip, .streak {
+      margin-top: 15px;
+    }
+    .feedback {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .tip {
+      font-size: 14px;
+      color: #555;
+    }
+    .streak {
+      font-size: 16px;
+      font-weight: bold;
+      color: #0070f3;
+    }
+    #quiz, #nextButton {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="menu">
+      <h2>Choose a Script</h2>
+      <button onclick="startQuiz('hiragana')">Hiragana</button>
+      <button onclick="startQuiz('katakana')">Katakana</button>
+    </div>
+
+    <div id="quiz">
+      <div class="char-display" id="quizChar">あ</div>
+      <input type="text" id="userInput" placeholder="Type romaji..." />
+      <button onclick="checkAnswer()">Check</button>
+      <div class="feedback" id="feedback"></div>
+      <div class="tip" id="tip"></div>
+      <div class="streak" id="streak">Streak: 0</div>
+      <button id="nextButton" onclick="getNextCharacter()">Next</button>
+    </div>
+  </div>
+
+  <script>
+    const hiraganaMap = [
+      { char: "あ", romaji: "a", tip: "Looks like an apple with a stem. 'A' is for apple." },
+      { char: "い", romaji: "i", tip: "Two sticks standing straight like the Roman numeral II. 'I' sounds like 'ee'." },
+      { char: "う", romaji: "u", tip: "Looks like a bird with wings up saying 'oo'." },
+      { char: "え", romaji: "e", tip: "Looks like an energetic person jumping — 'E' for energy." },
+      { char: "お", romaji: "o", tip: "Has a tail like an 'octopus' — 'O' is for octopus." },
+      { char: "か", romaji: "ka", tip: "Like a 'cut' with a knife — 'Ka' as in katana." },
+      { char: "き", romaji: "ki", tip: "Looks like a key with two teeth. 'Ki' = key." },
+      { char: "く", romaji: "ku", tip: "A bird's beak saying 'ku ku'." },
+      { char: "け", romaji: "ke", tip: "'Keg' with a spout." },
+      { char: "こ", romaji: "ko", tip: "Two lines like co-workers side by side." },
+      { char: "さ", romaji: "sa", tip: "'Sa' looks like a hook or fishing rod — 'sa' for salmon fishing." },
+      { char: "し", romaji: "shi", tip: "Looks like a hook or 'she' with long hair." },
+      { char: "す", romaji: "su", tip: "A swirl like 'soup' spinning in a bowl." },
+      { char: "せ", romaji: "se", tip: "Looks like a 'set' of tools." },
+      { char: "そ", romaji: "so", tip: "Curved like sewing thread — 'so' for sewing." },
+      { char: "た", romaji: "ta", tip: "Looks like 'ta-da!' a person lifting arms." },
+      { char: "ち", romaji: "chi", tip: "Curved like a 'cheek' — 'chi' for cheeky." },
+      { char: "つ", romaji: "tsu", tip: "Droplet shape — 'tsunami' begins with 'tsu'." },
+      { char: "て", romaji: "te", tip: "Looks like a 'tennis racket'." },
+      { char: "と", romaji: "to", tip: "Sharp like a 'toe' getting stubbed." },
+      { char: "な", romaji: "na", tip: "'Na' looks like a knot." },
+      { char: "に", romaji: "ni", tip: "Two neat lines — 'ni' for neat." },
+      { char: "ぬ", romaji: "nu", tip: "A loop like a noodle — 'nu' for noodle." },
+      { char: "ね", romaji: "ne", tip: "'Ne' for nest — has a curl like a nest." },
+      { char: "の", romaji: "no", tip: "A circle like 'no entry' sign." },
+      { char: "ん", romaji: "n", tip: "Like the letter 'n' in a curl." }
+    ];
+
+    const katakanaMap = [
+      { char: "ア", romaji: "a", tip: "Looks like an antenna — 'a' for antenna." },
+      { char: "イ", romaji: "i", tip: "Two lines like the Roman numeral II — 'i'." },
+      { char: "ウ", romaji: "u", tip: "Looks like a bird's beak — 'u' as in 'oo'." },
+      { char: "エ", romaji: "e", tip: "Has a capital 'H' look — 'e' for energy." },
+      { char: "オ", romaji: "o", tip: "A cross and line — resembles a person with a flag." },
+      { char: "カ", romaji: "ka", tip: "Looks like a 'katana' sword." },
+      { char: "キ", romaji: "ki", tip: "Like a key with prongs." },
+      { char: "ク", romaji: "ku", tip: "A beak or an arrow — 'ku ku' sound." },
+      { char: "ケ", romaji: "ke", tip: "A kettle with a handle." },
+      { char: "コ", romaji: "ko", tip: "Two lines side by side — 'co-workers'." },
+      { char: "ン", romaji: "n", tip: "A single hook stroke — 'n' curl." }
+    ];
+
+    let current = {};
+    let streak = 0;
+    let scriptType = "";
+
+    function startQuiz(type) {
+      scriptType = type;
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("quiz").style.display = "block";
+      getNextCharacter();
+    }
+
+    function getNextCharacter() {
+      const map = scriptType === "hiragana" ? hiraganaMap : katakanaMap;
+      current = map[Math.floor(Math.random() * map.length)];
+      document.getElementById("quizChar").textContent = current.char;
+      document.getElementById("userInput").value = "";
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("tip").textContent = "";
+      document.getElementById("nextButton").style.display = "none";
+    }
+
+    function checkAnswer() {
+      const input = document.getElementById("userInput").value.trim().toLowerCase();
+      const feedback = document.getElementById("feedback");
+      const tip = document.getElementById("tip");
+
+      if (input === current.romaji) {
+        feedback.textContent = "Correct!";
+        feedback.style.color = "green";
+        tip.textContent = "";
+        document.getElementById("streak").textContent = `Streak: ${++streak}`;
+        document.getElementById("nextButton").style.display = "block";
+      } else {
+        feedback.textContent = `Incorrect. Answer: ${current.romaji}`;
+        feedback.style.color = "red";
+        tip.textContent = `Tip: ${current.tip}`;
+        streak = 0;
+        document.getElementById("streak").textContent = `Streak: ${streak}`;
+        document.getElementById("nextButton").style.display = "block";
+      }
+    }
+  </script>
+</body>
+</html>
