@@ -220,8 +220,8 @@ function startQuiz(type) {
         wrongCounts[current.char] = (wrongCounts[current.char] || 0) + 1;
         let cardImg = "";
 if (scriptType.includes("katakana")) {
-  const safeRomaji = current.romaji.replace(/[^a-z]/gi, "");
-  cardImg = `<br><img src="katakana_cards/${safeRomaji}.png" alt="${current.romaji}" style="width:100px;margin-top:6px;border-radius:12px;">`;
+  const safeRomaji = current.romaji.replace(/[^a-z]/gi, "").toUpperCase();
+cardImg = `<br><img src="Katakana_Cards/${safeRomaji}.PNG" alt="${current.romaji}" style="width:90px;margin-top:6px;border-radius:12px;">`;
 }
 history.push(`❌ ${current.char} → ${current.romaji} — ${current.tip}${cardImg}`);
         streak = 0;
