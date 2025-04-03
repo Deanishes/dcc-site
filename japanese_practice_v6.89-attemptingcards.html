@@ -218,7 +218,12 @@ function startQuiz(type) {
         feedback.style.color = "#ff8080";
         tip.textContent = `Tip: ${current.tip}`;
         wrongCounts[current.char] = (wrongCounts[current.char] || 0) + 1;
-        history.push(`❌ ${current.char} → ${current.romaji} — ${current.tip}`);
+        let cardImg = "";
+if (scriptType.includes("katakana")) {
+  const safeRomaji = current.romaji.replace(/[^a-z]/gi, "");
+  cardImg = `<br><img src="katakana_cards/${safeRomaji}.png" alt="${current.romaji}" style="width:100px;margin-top:6px;border-radius:12px;">`;
+}
+history.push(`❌ ${current.char} → ${current.romaji} — ${current.tip}${cardImg}`);
         streak = 0;
         document.getElementById("streak").textContent = "Streak: 0";
       }
