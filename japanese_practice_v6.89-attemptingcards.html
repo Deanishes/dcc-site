@@ -130,6 +130,7 @@
       <button onclick="checkAnswer()">Check</button>
       <div class="feedback" id="feedback"></div>
       <div class="tip" id="tip"></div>
+      <div id="cardImageContainer"></div>
       <div class="streak" id="streak">Streak: 0</div>
       <button id="nextButton" onclick="getNextCharacter()">Next</button>
       <button onclick="continueQuiz()">Continue</button>
@@ -196,6 +197,7 @@ function startQuiz(type) {
       document.getElementById("tip").textContent = "";
       document.getElementById("nextButton").style.display = "none";
       answered = false;
+      document.getElementById("cardImageContainer").innerHTML = "";
     }
 
     function checkAnswer() {
@@ -208,25 +210,34 @@ function startQuiz(type) {
       const correct = input === current.romaji;
       questionCount++;
 
-      if (correct) {
-        feedback.textContent = "Correct!";
-        feedback.style.color = "lightgreen";
-        tip.textContent = "";
-        document.getElementById("streak").textContent = `Streak: ${++streak}`;
-      } else {
-        feedback.textContent = `Incorrect. Answer: ${current.romaji}`;
-        feedback.style.color = "#ff8080";
-        tip.textContent = `Tip: ${current.tip}`;
-        wrongCounts[current.char] = (wrongCounts[current.char] || 0) + 1;
-        let cardImg = "";
-if (scriptType.includes("katakana")) {
-  const safeRomaji = current.romaji.replace(/[^a-z]/gi, "").toUpperCase();
-cardImg = `<br><img src="Katakana_Cards/${safeRomaji}.PNG" alt="${current.romaji}" style="width:90px;margin-top:6px;border-radius:12px;">`;
+if (correct) {
+  feedback.textContent = "Correct!";
+  feedback.style.color = "lightgreen";
+  tip.textContent = "";
+  document.getElementById("streak").textContent = `Streak: ${++streak}`;
+  document.getElementById("cardImageContainer").innerHTML = "";
 }
-history.push(`❌ ${current.char} → ${current.romaji} — ${current.tip}${cardImg}`);
-        streak = 0;
-        document.getElementById("streak").textContent = "Streak: 0";
-      }
+
+} else {
+  feedback.textContent = `Incorrect. Answer: ${current.romaji}`;
+  feedback.style.color = "#ff8080";
+  tip.textContent = `Tip: ${current.tip}`;
+  wrongCounts[current.char] = (wrongCounts[current.char] || 0) + 1;
+  streak = 0;
+  document.getElementById("streak").textContent = "Streak: 0";
+
+  // 🖼 Show Katakana card immediately
+  let cardImg = "";
+  if (scriptType.includes("katakana")) {
+    const safeRomaji = current.romaji.replace(/[^a-z]/gi, "").toLowerCase(); // or .toUpperCase() if your image files use caps
+    cardImg = `<img src="Katakana_Cards/${safeRomaji}.png" alt="${current.romaji}" style="width:100px;margin-top:10px;border-radius:12px;">`;
+    document.getElementById("cardImageContainer").innerHTML = cardImg;
+  } else {
+    document.getElementById("cardImageContainer").innerHTML = "";
+  }
+
+  history.push(`❌ ${current.char} → ${current.romaji} — ${current.tip}${cardImg}`);
+}
 
       if (questionCount > 0 && questionCount % 20 === 0) {
         document.getElementById("quiz").style.display = "none";
