@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Interactive Alkalinity Table</title>
+    <style>
+        body {
+            font-family: Helvetica, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 60%;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="number"] {
+            width: 100px;
+            padding: 5px;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h2>Alkalinity Table</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Total Alkalinity</th>
+                <th>Cyanuric Acid</th>
+                <th>Carbonate Alkalinity</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="number" id="totalAlk" value="97" oninput="calculateCarbonate()"></td>
+                <td><input type="number" id="cyanuricAcid" value="40" oninput="calculateCarbonate()"></td>
+                <td><span id="carbonateAlk">83.67</span></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        function calculateCarbonate() {
+            const totalAlk = parseFloat(document.getElementById("totalAlk").value) || 0;
+            const cya = parseFloat(document.getElementById("cyanuricAcid").value) || 0;
+            const carbonate = totalAlk - (cya * 0.334);
+            document.getElementById("carbonateAlk").textContent = carbonate.toFixed(2);
+        }
+    </script>
+</body>
+</html>

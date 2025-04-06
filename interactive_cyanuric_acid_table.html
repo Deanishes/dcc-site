@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Interactive Cyanuric Acid Table</title>
+    <style>
+        body {
+            font-family: Helvetica, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 60%;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="number"] {
+            width: 120px;
+            padding: 5px;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h2>Cyanuric Acid Adjustment Table</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Current CYA Level</th>
+                <th>Desired CYA Level</th>
+                <th>% of Water Required to Dump</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="number" id="currentCYA" value="110" oninput="calculateDumpPercent()"></td>
+                <td><input type="number" id="desiredCYA" value="50" oninput="calculateDumpPercent()"></td>
+                <td><span id="percentDump">54.55%</span></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        function calculateDumpPercent() {
+            const current = parseFloat(document.getElementById("currentCYA").value) || 1;
+            const desired = parseFloat(document.getElementById("desiredCYA").value) || 0;
+            let percent = 1 - (desired / current);
+            percent = Math.max(0, Math.min(1, percent));  // Clamp between 0 and 1
+            document.getElementById("percentDump").textContent = (percent * 100).toFixed(2) + "%";
+        }
+    </script>
+</body>
+</html>

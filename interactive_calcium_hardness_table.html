@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Interactive Calcium Hardness Table</title>
+    <style>
+        body {
+            font-family: Helvetica, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 60%;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="number"] {
+            width: 100px;
+            padding: 5px;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h2>Calcium Hardness Table</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Total Hardness</th>
+                <th>Magnesium Hardness</th>
+                <th>Calcium Hardness</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="number" id="totalHardness" value="254" oninput="calculateCalcium()"></td>
+                <td><input type="number" id="magHardness" value="111" oninput="calculateCalcium()"></td>
+                <td><span id="calcHardness">143</span></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        function calculateCalcium() {
+            const total = parseFloat(document.getElementById("totalHardness").value) || 0;
+            const mag = parseFloat(document.getElementById("magHardness").value) || 0;
+            const calcium = total - mag;
+            document.getElementById("calcHardness").textContent = calcium.toFixed(2);
+        }
+    </script>
+</body>
+</html>
