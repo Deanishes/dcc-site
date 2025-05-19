@@ -53,7 +53,8 @@
             const total = parseFloat(document.getElementById("totalHardness").value) || 0;
             const mag = parseFloat(document.getElementById("magHardness").value) || 0;
             const calcium = total - mag;
-            document.getElementById("calcHardness").textContent = calcium.toFixed(2);
+            document.getElementById("calcHardness").textContent = Math.round(calcium);
+
         }
     </script>
 </body>
