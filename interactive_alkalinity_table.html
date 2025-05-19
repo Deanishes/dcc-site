@@ -53,7 +53,8 @@
             const totalAlk = parseFloat(document.getElementById("totalAlk").value) || 0;
             const cya = parseFloat(document.getElementById("cyanuricAcid").value) || 0;
             const carbonate = totalAlk - (cya * 0.334);
-            document.getElementById("carbonateAlk").textContent = carbonate.toFixed(2);
+            document.getElementById("carbonateAlk").textContent = Math.round(carbonate);
+
         }
     </script>
 </body>
